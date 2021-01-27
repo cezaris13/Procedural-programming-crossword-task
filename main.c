@@ -1,16 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define MAX_SIZE 256
+#define MAX_SIZE 512
 #define EMPTY 'O'
 #define WALL 'X'
+#define FAILEDMAP '@'
 #define sthwrong printf("wrong\n")
 char **finalMap=NULL;
-int comp(const void *p, const void *q) {
-     char* const *pp = p;
-     char* const *qq = q;
-     return -strcmp(*pp, *qq);
-}
+
 int checkEmpty(char **map,int x_size,int y_size){
     for(int i=0;i<x_size;i++){
         for(int j=0;j<y_size;j++){
@@ -28,19 +25,20 @@ void printArray(char **arr,int size){
         return;
     }
     for(int i=0;i<size;i++){
-        for(int j=0;j<strlen(arr[i]);j++){
-            printf("%c",(arr[i][j]==WALL?'_':arr[i][j]));
-        }
-        printf("\n");
+       printf("%s\n",arr[i]);
     }
 }
 char **copyMap (char **map,int x_size,int y_size){
-    char **temp=malloc(MAX_SIZE * sizeof (unsigned char*));
+    char **temp=malloc((x_size+1) * sizeof (unsigned char*));
     for(int i=0;i<x_size;i++){
-        *(temp+i)= malloc(y_size*sizeof(char));
+        *(temp+i)= malloc((y_size+1)*sizeof(char));
         for(int j=0;j<y_size;j++){
-            temp[i][j]=map[i][j];
+//            printf("%c ",map[i][j]);
+
+            temp[i][j]=map[i][j];//beda cia
+//            printf("%c ",map[i][j]);
         }
+        temp[i][y_size]='\0';
     }
     return temp;
 }
@@ -55,21 +53,21 @@ void readData(char *filename,int *count,char ***arr){
     }
     while(1){
         if(line_size>=0){
-            char *sth=malloc(MAX_SIZE*sizeof(char));
+            char *sth;//=malloc(MAX_SIZE*sizeof(char));
             line_size = getline(&line, &line_buf_size, fd);
             int i=0;
             if(line_size>0){
-                while(line[i]!='\n'){
-                    sth[i]=line[i];
-                    i++;
+                if(strlen(line)<MAX_SIZE){
+                    sth=line;
+                    sth[strlen(line)-1]='\0';
+                    *(*arr+(*count))=sth;
+                    (*count)++;
                 }
-                sth[i]='\0';
-                *(*arr+(*count))=sth;
-                (*count)++;
+                else{
+                    printf("zodis %s virsijo maximalu zodzio ilgi: %d\n",line,MAX_SIZE);
+                }
             }
-            free(line);
             line=calloc(MAX_SIZE,sizeof(char));
-
         }
         else{
             break;
@@ -87,40 +85,41 @@ char **checkWord(int x, int y, char **map,char *currWord,int x_size,int y_size,c
             tempMap[x + v*i][y+h*i] = currWord[i];
         }
         else {
-            tempMap[0][0] = '@';
+            tempMap[0][0] = FAILEDMAP;
             return tempMap;
         }
     }
 //      if(x_size!=n && tempMap[n][y]==EMPTY){
-//         tempMap[0][0] = '@';
+//         tempMap[0][0] = FAILEDMAP;
 //
 //    }
     return tempMap;
 }
 void solveCrossword(char **words,int words_size, char **map,int index,int x_size, int y_size){
-//    printArray(map,x_size);
    if(!checkEmpty(map,x_size,y_size)){// jei masyvas uzpildytas arba zodziai pasibaige tada saugoti
         finalMap=copyMap(map,x_size,y_size);
         return;
    }
-
     if(index < words_size){
-        int maxLenx =  x_size-strlen(words[index]);//change later
+        int maxLenx = x_size-strlen(words[index]);//change later
         int maxLeny = y_size-strlen(words[index]);
-        for (int i = 0; i < x_size; i++) {
+//        printf("maxlenx %d xsize %d\n",maxLenx,x_size);
+//        printf("%s\n",words[index]);
+        for (int i = 0; i < y_size; i++) {
             for (int j = 0; j <= maxLenx; j++) {
                 char **temp = checkWord(j, i, map, words[index],x_size,y_size,'v');
-                if (temp[0][0] != '@') {
+//                printArray(temp,x_size);
+//                printf("\n");
+                if (temp[0][0] != FAILEDMAP) {
                     solveCrossword(words,words_size, temp, index + 1, x_size,y_size);
                 }
                 free(temp);
             }
-//            printArray(map,x_size);
         }
-        for (int i = 0; i < y_size; i++) {
+        for (int i = 0; i < x_size; i++) {
             for (int j = 0; j <= maxLeny; j++) {
                 char **temp = checkWord(i, j,map, words[index],x_size,y_size,'h');
-                if (temp[0][0] != '@') {
+                if (temp[0][0] != FAILEDMAP) {
                      solveCrossword(words,words_size, temp, index + 1, x_size,y_size);
                 }
                 free(temp);
@@ -140,9 +139,22 @@ int main(){
     zemelapis=malloc( MAX_SIZE * sizeof ( unsigned char *) );
     readData("words.txt",&n,&words);
 //    printArray(words,n);
-    qsort(words,n,sizeof(char*),comp);
+    for(int i=0;i<n-1;i++){
+        for(int j=i+1;j<n;j++){
+            if(strlen(words[i])<strlen(words[j])){
+                char *temp=words[i];
+                words[i]=words[j];
+                words[j]=temp;
+            }
+        }
+    }
+
 //    printArray(words,n);
-    readData("crossword4.txt",&k,&zemelapis);
+    readData("crossword.txt",&k,&zemelapis);
+//    printArray(zemelapis,k);
+//    printf("\n");
+//    char **tmp=copyMap(zemelapis,k,strlen(zemelapis[0]));
+//    printArray(tmp,k);
     solveCrossword(words,n,zemelapis,0,k,strlen(zemelapis[0]));
     printArray(finalMap,k);
     return 0;

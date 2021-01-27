@@ -1,0 +1,6 @@
+chemistry
+history
+physics
+maths
+civics
+geography

@@ -98,9 +98,11 @@ void solveCrossword(char **words,int words_size, char **map,int index,int x_size
         return;
    }
     if(index < words_size){
-        int maxLen =  x_size- strlen(words[index]);//change later
+        int maxLenx =  x_size- strlen(words[index]);//change later
+        //nonsquare TODO
+        int maxLeny = y_size-strlen(words[index]);
         for (int i = 0; i < x_size; i++) {
-            for (int j = 0; j <= maxLen; j++) {
+            for (int j = 0; j <= maxLenx; j++) {
                 char **temp = checkWord(j, i, map, words[index],x_size,y_size,'v');
                 if (temp[0][0] != '@') {
                     solveCrossword(words,words_size, temp, index + 1, x_size,y_size);
@@ -108,8 +110,8 @@ void solveCrossword(char **words,int words_size, char **map,int index,int x_size
                 free(temp);
             }
         }
-        for (int i = 0; i < x_size; i++) {
-            for (int j = 0; j <= maxLen; j++) {
+        for (int i = 0; i < y_size; i++) {
+            for (int j = 0; j <= maxLeny; j++) {
                 char **temp = checkWord(i, j,map, words[index],x_size,y_size,'h');
                 if (temp[0][0] != '@') {
                      solveCrossword(words,words_size, temp, index + 1, x_size,y_size);

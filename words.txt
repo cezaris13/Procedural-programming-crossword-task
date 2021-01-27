@@ -1,8 +1,6 @@
-kalnas
-namas
-vanduo
-dama
-rasa
-ola
-mia
-jis
+ab
+cde
+fghi
+jklmn
+opqrst
+uvwxyz

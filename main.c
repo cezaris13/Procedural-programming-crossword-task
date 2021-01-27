@@ -51,27 +51,26 @@ void readData(char *filename,int *count,char ***arr){
         printf("ivyko klaida atidarant faila: %s\n",filename);
         return;
     }
-    while(1){
-        if(line_size>=0){
-            char *sth;//=malloc(MAX_SIZE*sizeof(char));
-            line_size = getline(&line, &line_buf_size, fd);
-            int i=0;
-            if(line_size>0){
-                if(strlen(line)<MAX_SIZE){
-                    sth=line;
-                    sth[strlen(line)-1]='\0';
-                    *(*arr+(*count))=sth;
-                    (*count)++;
-                }
-                else{
-                    printf("zodis %s virsijo maximalu zodzio ilgi: %d\n",line,MAX_SIZE);
-                }
+    while(line_size>=0){
+        char *sth;
+        line_size = getline(&line, &line_buf_size, fd);
+        int i=0;
+        if(line_size>0){
+            if(strlen(line)<MAX_SIZE){
+//                    if(*count==MAX_SIZE){
+//                        break;
+//                    }
+                sth=line;
+                sth[strlen(line)-1]='\0';
+
+                *(*arr+(*count))=sth;
+                (*count)++;
             }
-            line=calloc(MAX_SIZE,sizeof(char));
+            else{
+                printf("zodis %s virsijo maximalu zodzio ilgi: %d\n",line,MAX_SIZE);
+            }
         }
-        else{
-            break;
-        }
+        line=NULL;
     }
     fclose(fd);
 }
@@ -103,13 +102,9 @@ void solveCrossword(char **words,int words_size, char **map,int index,int x_size
     if(index < words_size){
         int maxLenx = x_size-strlen(words[index]);//change later
         int maxLeny = y_size-strlen(words[index]);
-//        printf("maxlenx %d xsize %d\n",maxLenx,x_size);
-//        printf("%s\n",words[index]);
         for (int i = 0; i < y_size; i++) {
             for (int j = 0; j <= maxLenx; j++) {
                 char **temp = checkWord(j, i, map, words[index],x_size,y_size,'v');
-//                printArray(temp,x_size);
-//                printf("\n");
                 if (temp[0][0] != FAILEDMAP) {
                     solveCrossword(words,words_size, temp, index + 1, x_size,y_size);
                 }
@@ -131,14 +126,12 @@ void solveCrossword(char **words,int words_size, char **map,int index,int x_size
     }
     solveCrossword(words,words_size,map,index+1,x_size,y_size);
 }
-
 int main(){
     int n=0,k=0;
     char **words, **zemelapis;
     words=malloc( MAX_SIZE * sizeof ( unsigned char *) );
     zemelapis=malloc( MAX_SIZE * sizeof ( unsigned char *) );
-    readData("words.txt",&n,&words);
-//    printArray(words,n);
+    readData("words11.txt",&n,&words);
     for(int i=0;i<n-1;i++){
         for(int j=i+1;j<n;j++){
             if(strlen(words[i])<strlen(words[j])){
@@ -148,13 +141,7 @@ int main(){
             }
         }
     }
-
-//    printArray(words,n);
-    readData("crossword.txt",&k,&zemelapis);
-//    printArray(zemelapis,k);
-//    printf("\n");
-//    char **tmp=copyMap(zemelapis,k,strlen(zemelapis[0]));
-//    printArray(tmp,k);
+    readData("crossword11.txt",&k,&zemelapis);
     solveCrossword(words,n,zemelapis,0,k,strlen(zemelapis[0]));
     printArray(finalMap,k);
     return 0;

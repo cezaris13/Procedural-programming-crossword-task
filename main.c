@@ -72,12 +72,14 @@ void readData(char *filename,int *count,char ***arr){
     }
     fclose(fd);
 }
-char **checkVertically(int x, int y, char **map,char *currWord,int x_size,int y_size){
+char **checkWord(int x, int y, char **map,char *currWord,int x_size,int y_size,char orientation){
+    int v=(orientation=='v'?1:0);//vertical - v=1 h=0; horizontal v=0,h=1;
+    int h=(orientation=='v'?0:1);
     char **tempMap=copyMap(map,x_size,y_size);
     int n=strlen(currWord);
     for (int i = 0; i < n; i++) {
-        if (tempMap[x + i][y] == EMPTY ||  tempMap[x + i][y] == currWord[i]) {
-            tempMap[x + i][y] = currWord[i];
+        if (tempMap[x + v*i][y+h*i] == EMPTY ||  tempMap[x + v*i][y+h*i] == currWord[i]) {
+            tempMap[x + v*i][y+h*i] = currWord[i];
         }
         else {
             tempMap[0][0] = '@';
@@ -89,27 +91,8 @@ char **checkVertically(int x, int y, char **map,char *currWord,int x_size,int y_
 //
 //    }
     return tempMap;
-
 }
-char **checkHorizontally(int x, int y, char **map,char *currWord,int x_size,int y_size){
-    char **tempMap=copyMap(map,x_size,y_size);
-    int n=strlen(currWord);
-    for (int i = 0; i < n; i++) {
-        if (tempMap[x][y+i] == EMPTY ||  tempMap[x][y+i] == currWord[i]) {
-            tempMap[x][y+i] = currWord[i];
-        }
-        else {
-            tempMap[0][0] = '@';
-            return tempMap;
-        }
-    }
-//    if(y_size!=n && tempMap[x][n]==EMPTY){
-//         tempMap[0][0] = '@';
-//
-//    }
-    return tempMap;
-}
-void solveCrossword(char **words,int words_size, char **map,int index,int x_size, int y_size){
+void solveCrossword(char **words,int words_size, char **map,int index,int x_size, int y_size){//todo non square map of 'x' and 'o'
    if(!checkEmpty(map,x_size,y_size)){// jei masyvas uzpildytas arba zodziai pasibaige tada saugoti
         finalMap=copyMap(map,x_size,y_size);
         return;
@@ -118,7 +101,7 @@ void solveCrossword(char **words,int words_size, char **map,int index,int x_size
         int maxLen =  x_size- strlen(words[index]);//change later
         for (int i = 0; i < x_size; i++) {
             for (int j = 0; j <= maxLen; j++) {
-                char **temp = checkVertically(j, i, map, words[index],x_size,y_size);
+                char **temp = checkWord(j, i, map, words[index],x_size,y_size,'v');
                 if (temp[0][0] != '@') {
                     solveCrossword(words,words_size, temp, index + 1, x_size,y_size);
                 }
@@ -127,7 +110,7 @@ void solveCrossword(char **words,int words_size, char **map,int index,int x_size
         }
         for (int i = 0; i < x_size; i++) {
             for (int j = 0; j <= maxLen; j++) {
-                char **temp = checkHorizontally(i, j,map, words[index],x_size,y_size);
+                char **temp = checkWord(i, j,map, words[index],x_size,y_size,'h');
                 if (temp[0][0] != '@') {
                      solveCrossword(words,words_size, temp, index + 1, x_size,y_size);
                 }

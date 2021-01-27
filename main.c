@@ -6,6 +6,11 @@
 #define WALL 'X'
 #define sthwrong printf("wrong\n")
 char **finalMap=NULL;
+int comp(const void *p, const void *q) {
+     char* const *pp = p;
+     char* const *qq = q;
+     return -strcmp(*pp, *qq);
+}
 int checkEmpty(char **map,int x_size,int y_size){
     for(int i=0;i<x_size;i++){
         for(int j=0;j<y_size;j++){
@@ -30,7 +35,7 @@ void printArray(char **arr,int size){
     }
 }
 char **copyMap (char **map,int x_size,int y_size){
-    char **temp=malloc(x_size*sizeof(char*));
+    char **temp=malloc(MAX_SIZE * sizeof (unsigned char*));
     for(int i=0;i<x_size;i++){
         *(temp+i)= malloc(y_size*sizeof(char));
         for(int j=0;j<y_size;j++){
@@ -92,14 +97,15 @@ char **checkWord(int x, int y, char **map,char *currWord,int x_size,int y_size,c
 //    }
     return tempMap;
 }
-void solveCrossword(char **words,int words_size, char **map,int index,int x_size, int y_size){//todo non square map of 'x' and 'o'
+void solveCrossword(char **words,int words_size, char **map,int index,int x_size, int y_size){
+//    printArray(map,x_size);
    if(!checkEmpty(map,x_size,y_size)){// jei masyvas uzpildytas arba zodziai pasibaige tada saugoti
         finalMap=copyMap(map,x_size,y_size);
         return;
    }
+
     if(index < words_size){
-        int maxLenx =  x_size- strlen(words[index]);//change later
-        //nonsquare TODO
+        int maxLenx =  x_size-strlen(words[index]);//change later
         int maxLeny = y_size-strlen(words[index]);
         for (int i = 0; i < x_size; i++) {
             for (int j = 0; j <= maxLenx; j++) {
@@ -109,6 +115,7 @@ void solveCrossword(char **words,int words_size, char **map,int index,int x_size
                 }
                 free(temp);
             }
+//            printArray(map,x_size);
         }
         for (int i = 0; i < y_size; i++) {
             for (int j = 0; j <= maxLeny; j++) {
@@ -132,7 +139,10 @@ int main(){
     words=malloc( MAX_SIZE * sizeof ( unsigned char *) );
     zemelapis=malloc( MAX_SIZE * sizeof ( unsigned char *) );
     readData("words.txt",&n,&words);
-    readData("crossword.txt",&k,&zemelapis);
+//    printArray(words,n);
+    qsort(words,n,sizeof(char*),comp);
+//    printArray(words,n);
+    readData("crossword4.txt",&k,&zemelapis);
     solveCrossword(words,n,zemelapis,0,k,strlen(zemelapis[0]));
     printArray(finalMap,k);
     return 0;

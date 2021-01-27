@@ -1,5 +1,6 @@
 # depslib dependency file v1.0
-1611691671 source:/home/pijus/Desktop/Programming/kryziazodis/main.c
+1611731732 source:/home/pijus/Desktop/Programming/kryziazodis/main.c
 	<stdio.h>
 	<stdlib.h>
+	<string.h>
 

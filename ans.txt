@@ -1,8 +1,20 @@
-oXXXXXXXXXXXXXXXXXXXXXXX
-pjXXXXXXXXXXXXXXXXXXXXXX
-qkfXXXXXXXXXXXXXXXXXXXXX
-rlgcXXXXXXXXXXXXXXXXXXXX
-smhdaXXXXXXXXXXXXXXXXXXX
-tniebXXXXXXXXXXXXXXXXXXX
-XXXXXXXXXXXXXXXXXXXXXXXX
-XXXXXXXXXXXXXXXXXXXXXXXX
+OOOOOO
+XOOOXO
+XOOOOO
+OXXXXO
+OXOOOO
+OXOXXO
+OOOXOO 
+12
+x: 0 y: 5 length: 7 orientation: v
+x: 0 y: 0 length: 6 orientation: h
+x: 2 y: 1 length: 5 orientation: h
+x: 3 y: 0 length: 4 orientation: v
+x: 4 y: 2 length: 4 orientation: h
+x: 1 y: 1 length: 3 orientation: h
+x: 0 y: 2 length: 3 orientation: v
+x: 0 y: 3 length: 3 orientation: v
+x: 4 y: 2 length: 3 orientation: v
+x: 0 y: 1 length: 3 orientation: v
+x: 6 y: 0 length: 3 orientation: h
+x: 6 y: 4 length: 2 orientation: h

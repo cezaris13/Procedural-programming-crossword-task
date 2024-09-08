@@ -2,10 +2,10 @@
 #include <time.h>
 
 #define EMPTY 'O'
-#define MAX_SIZE 512
 #define WALL 'X'
-#define EMPTY 'O'
+#define MAX_SIZE 512
 #define FAILED_MAP '@'
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
 #include "file_operations.h"
 #include "crossword.h"
@@ -18,10 +18,10 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    char **wordList;
-    int wordCount = 0;
-    wordList = malloc(MAX_SIZE * sizeof(unsigned char *));
-    readData(argv[1], &wordCount, &wordList);
+    Words words;
+    words.words = malloc(MAX_SIZE * sizeof(unsigned char *));
+    words.size = 0;
+    readData(argv[1], &(words.size), &(words.words));
 
     CrossWord crossWord;
     int linesCount = 0;
@@ -30,42 +30,57 @@ int main(int argc, char *argv[])
     crossWord.xSize = linesCount;
     crossWord.ySize = strlen(crossWord.map[0]);
 
-    for (int i = 0; i < wordCount - 1; i++)
-    { // sort word in descending order by their size
-        for (int j = i + 1; j < wordCount; j++)
+    // calculate each word length occurence
+    int *wordOccurence = malloc(MAX(crossWord.xSize, crossWord.ySize) * sizeof(int));
+    for (int i = 0; i < words.size; i++)
+        wordOccurence[strlen(words.words[i])]++;
+    words.lengthOccurence = wordOccurence;
+
+    // Sort words in ascending order by their length occurence
+    for (int i = 0; i < words.size - 1; i++)
+    {
+        for (int j = i + 1; j < words.size; j++)
         {
-            if (strlen(wordList[i]) < strlen(wordList[j]))
+            if (words.lengthOccurence[strlen(words.words[i])] > words.lengthOccurence[strlen(words.words[j])])
             {
-                char *temp = wordList[i];
-                wordList[i] = wordList[j];
-                wordList[j] = temp;
+                char *temp = words.words[i];
+                words.words[i] = words.words[j];
+                words.words[j] = temp;
             }
         }
     }
 
-    Word *allWords = malloc(MAX_SIZE * sizeof(Word));
-    int amount = 0;
-    findAllPossiblePlacements(crossWord, &allWords, &amount);
-    for (int i = 0; i < amount - 1; i++)
-    { // sort word in descending order by their size
-        for (int j = i + 1; j < amount; j++)
+    WordPositions wordPositions;
+    wordPositions.positions = malloc(MAX_SIZE * sizeof(WordPosition));
+    wordPositions.length = 0;
+    findAllPossibleWordPositions(&crossWord, &wordPositions);
+
+    int *wordPositionOccurence = malloc(MAX(crossWord.xSize, crossWord.ySize) * sizeof(int));
+    for (int i = 0; i < wordPositions.length; i++)
+        wordPositionOccurence[wordPositions.positions[i].length]++;
+    wordPositions.lengthOccurence = wordPositionOccurence;
+
+    // Sort wordPositions in ascending order by their length occurence
+    for (int i = 0; i < wordPositions.length - 1; i++)
+    {
+        for (int j = i + 1; j < wordPositions.length; j++)
         {
-            if (allWords[i].length < allWords[j].length)
+            if (wordPositions.lengthOccurence[wordPositions.positions[i].length] > wordPositions.lengthOccurence[wordPositions.positions[j].length])
             {
-                Word temp = allWords[i];
-                allWords[i] = allWords[j];
-                allWords[j] = temp;
+                WordPosition temp = wordPositions.positions[i];
+                wordPositions.positions[i] = wordPositions.positions[j];
+                wordPositions.positions[j] = temp;
             }
         }
     }
-    clock_t t = clock();
+    clock_t time = clock();
 
     CrossWord finalCrossWord;
-    solveCrossword(wordList, wordCount, crossWord, &finalCrossWord, 0, amount, allWords);
+    solveCrossword(crossWord, &finalCrossWord, words, wordPositions, 0);
 
-    t = clock() - t;
+    time = clock() - time;
     printArray(finalCrossWord.map, linesCount);
 
-    printf("%fsek.\n", ((double)t) / CLOCKS_PER_SEC);
+    printf("%fsek.\n", ((double)time) / CLOCKS_PER_SEC);
     return 0;
 }

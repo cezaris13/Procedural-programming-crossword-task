@@ -8,8 +8,16 @@ void printArray(char **solution, int size)
         printf("No solution has been generated\n");
         return;
     }
+
     for (int i = 0; i < size; i++)
-        printf("%s\n", solution[i]);
+    {
+        for (int j = 0; j < strlen(solution[i]); j++)
+        {
+            char symbol = solution[i][j] == WALL ? '.' : solution[i][j];
+            printf("%c", symbol);
+        }
+        printf("\n");
+    }
 }
 
 void readData(char *filename, int *count, char ***lines)

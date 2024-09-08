@@ -5,14 +5,29 @@ struct CrossWord
 };
 typedef struct CrossWord CrossWord;
 
-struct Word
+struct Words
+{
+    char **words;
+    int size;
+    int *lengthOccurence;
+};
+typedef struct Words Words;
+
+struct WordPosition
 {
     int x, y, length, isVertical;
-    // char *word;
 };
-typedef struct Word Word;
+typedef struct WordPosition WordPosition;
 
-// iteratate through the crossword map and search if there's EMPTY symbol
+struct WordPositions
+{
+    WordPosition *positions;
+    int length;
+    int *lengthOccurence;
+};
+typedef struct WordPositions WordPositions;
+
+// Iteratate through the crossword map and search if there's EMPTY symbol
 int isEmpty(CrossWord crossWord)
 {
     for (int i = 0; i < crossWord.xSize; i++)
@@ -39,7 +54,10 @@ CrossWord copyCrossWord(CrossWord crossWord)
     return crossWordCopy;
 }
 
-CrossWord checkWord(CrossWord crossWord, Word word, char *wrd)
+// Given word orientation and starting position, check if word can fit in the empty space.
+// If while checking, the letter in the map is not empty or the letter does not match with the i-th letter of the word, then return FAILED_MAP
+// (Denoted by @ sign in map[0][0] position)
+CrossWord checkWord(CrossWord crossWord, WordPosition word, char *wrd)
 {
     CrossWord tempCrossWord = copyCrossWord(crossWord);
     for (int i = 0; i < word.length; i++)
@@ -59,76 +77,82 @@ CrossWord checkWord(CrossWord crossWord, Word word, char *wrd)
     return tempCrossWord;
 }
 
-void solveCrossword(char **words, int wordsSize, CrossWord crossWord, CrossWord *finalCrossWord, int index, int amount, Word *list)
+void solveCrossword(CrossWord crossWord, CrossWord *finalCrossWord, Words words, WordPositions wordPositions, int index)
 {
+    // if the crossword does not have EMPTY symbols, the solution was found, return
     if (!isEmpty(crossWord))
     {
         *finalCrossWord = copyCrossWord(crossWord);
         return;
     }
 
-    if (index >= wordsSize)
+    // if index is out of range of list of words break
+    if (index >= words.size)
         return;
 
-    for (int i = 0; i < amount; i++)
+    for (int i = 0; i < wordPositions.length; i++)
     {
-        if (strlen(words[index]) == list[i].length)
+        if (strlen(words.words[index]) == wordPositions.positions[i].length) // chia issue(I think)
         {
-            CrossWord temp = checkWord( crossWord, list[i], words[index]);
+            CrossWord temp = checkWord(crossWord, wordPositions.positions[i], words.words[index]);
+            // If the map is not failed, the word worked, moving on to the next one.
             if (temp.map[0][0] != FAILED_MAP)
-                solveCrossword(words, wordsSize, temp, finalCrossWord, index + 1, amount, list);
+                solveCrossword(temp, finalCrossWord, words, wordPositions, index + 1);
         }
     }
 
-    if (index < wordsSize)
-        solveCrossword(words, wordsSize, crossWord, finalCrossWord, index + 1, amount, list);
+    if (index < words.size)
+        solveCrossword(crossWord, finalCrossWord, words, wordPositions, index + 1);
 }
 
-void findAllPossiblePlacements(CrossWord crossWord, Word **words, int *amount)
+// Finds the word placement, for coordinates x y, with length and either vertical or horizontal
+void processWord(CrossWord *crossWord, WordPositions *wordPositions, int i, int j, int isVertical)
 {
-    for (int i = 0; i < crossWord.xSize; i++)
+    int wordLength = 0;
+    WordPosition wordPosition;
+    wordPosition.x = i;
+    wordPosition.y = j;
+    wordPosition.isVertical = isVertical;
+
+    if (isVertical)
     {
-        for (int j = 0; j < crossWord.ySize; j++)
+        // if the it is the corner or there's wall above the empty, go down while the you reach the wall or the end of map
+        if (i == 0 || crossWord->map[i - 1][j] != EMPTY)
+            for (; wordLength + i < crossWord->xSize; wordLength++)
+                if (crossWord->map[i + wordLength][j] == WALL)
+                    break;
+    }
+    else
+    {
+        // if the it is the corner or there's wall on the left of the empty, go right while the you reach the wall or the end of map
+        if (j == 0 || crossWord->map[i][j - 1] != EMPTY)
+            for (; wordLength + j < crossWord->ySize; wordLength++)
+                if (crossWord->map[i][j + wordLength] == WALL)
+                    break;
+    }
+
+    if (wordLength > 1)
+    {
+        wordPosition.length = wordLength;
+        wordPositions->positions[wordPositions->length] = wordPosition;
+        wordPositions->length++;
+    }
+}
+
+// Finds all x y coordinates with length and orientation, where word could fit.
+void findAllPossiblePlacements(CrossWord *crossWord, WordPositions *wordPositions)
+{
+    for (int i = 0; i < crossWord->xSize; i++)
+    {
+        for (int j = 0; j < crossWord->ySize; j++)
         {
-            int k = 0;
-            Word temp, temp1;
-            temp.x = i;
-            temp.y = j;
-            temp.isVertical = 1;
-            if (i == 0 || crossWord.map[i - 1][j] != EMPTY)
-            {
-                while (k + i < crossWord.xSize)
-                {
-                    if (WALL == crossWord.map[i + k][j])
-                        break;
-                    k++;
-                }
-            }
-            if (k > 1)
-            {
-                temp.length = k;
-                *(*words + *amount) = temp;
-                (*amount)++;
-            }
-            k = 0;
-            temp1.x = i;
-            temp1.y = j;
-            temp1.isVertical = 0;
-            if (j == 0 || crossWord.map[i][j - 1] != EMPTY)
-            {
-                while (k + j < crossWord.ySize)
-                {
-                    if (WALL == crossWord.map[i][j + k])
-                        break;
-                    k++;
-                }
-            }
-            if (k > 1)
-            {
-                temp1.length = k;
-                *(*words + *amount) = temp1;
-                (*amount)++;
-            }
+            if (crossWord->map[i][j] == WALL)
+                continue;
+
+            // Process vertical words
+            processWord(crossWord, wordPositions, i, j, 1);
+            // Process horizontal words
+            processWord(crossWord, wordPositions, i, j, 0);
         }
     }
 }

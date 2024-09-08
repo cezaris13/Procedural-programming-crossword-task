@@ -3,9 +3,8 @@
 #include "crossword.c"
 int isEmpty(CrossWord crossWord);
 CrossWord copyCrossWord(CrossWord crossWord);
-// CrossWord checkWord(CrossWord crossWord, Word word);
-CrossWord checkWord(CrossWord crossWord, Word word, char *wrd);
+CrossWord checkWord(CrossWord crossWord, WordPosition word, char *wrd);
 
-void solveCrossword(char **words, int words_size, CrossWord crossWord,CrossWord *finalCrossWord, int index, int amount, Word *list);
-void findAllPossiblePlacements(CrossWord crossWord, Word **words, int *amount);
+void solveCrossword(CrossWord crossWord, CrossWord *finalCrossWord, Words words, WordPositions wordPositions, int index);
+void findAllPossibleWordPositions(CrossWord* crossWord, WordPositions *wordPositions);
 #endif

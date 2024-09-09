@@ -6,12 +6,15 @@ testDirectory= './TestCrosswords'
 tests = $(shell ls $(testDirectory))
 wordsFile = 'words.txt'
 crosswordFile = 'crossword.txt'
-defaultTest = 'test1'
+defaultTest = 'test9'
 build:
 	gcc $(file) -o $(executable)
 
 run:
 	./$(executable) $(testDirectory)/$(defaultTest)/$(wordsFile) $(testDirectory)/$(defaultTest)/$(crosswordFile)
+
+debug:
+	./$(executable) $(testDirectory)/$(defaultTest)/$(wordsFile) $(testDirectory)/$(defaultTest)/$(crosswordFile) DEBUG
 
 test:
 	# for oneTest in $(tests) ; do \

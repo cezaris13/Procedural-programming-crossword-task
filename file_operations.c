@@ -1,23 +1,23 @@
-#include <stdlib.h>
-#include <stdio.h>
 
-void printArray(char **solution, int size)
+
+void printArray(Crossword crossword)
 {
-    if (solution == NULL)
+    if (crossword.map == NULL)
     {
         printf("No solution has been generated\n");
         return;
     }
 
-    for (int i = 0; i < size; i++)
+    for (int i = 0; i < crossword.xSize; i++)
     {
-        for (int j = 0; j < strlen(solution[i]); j++)
+        for (int j = 0; j < crossword.ySize; j++)
         {
-            char symbol = solution[i][j] == WALL ? '.' : solution[i][j];
+            char symbol = crossword.map[i][j] == WALL ? '.' : crossword.map[i][j];
             printf("%c", symbol);
         }
         printf("\n");
     }
+    printf("\n");
 }
 
 void readData(char *filename, int *count, char ***lines)

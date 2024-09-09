@@ -33,23 +33,22 @@ void readData(char *filename, int *count, char ***lines)
         return;
     }
 
-    while (lineSize >= 0)
+    while (1)
     {
         lineSize = getline(&line, &lineBufSize, fd);
-        int i = 0;
-        if (lineSize > 0)
+        line[strlen(line) - 1] = '\0';
+        if (lineSize == -1)
+            break;
+
+        if (strlen(line) >= MAX_SIZE)
         {
-            if (strlen(line) >= MAX_SIZE)
-            {
-                printf("Word %s is longer than MAX_SIZE: %d\n", line, MAX_SIZE);
-                continue;
-            }
-
-            line[strlen(line) - 1] = '\0';
-
-            *(*lines + (*count)) = line;
-            (*count)++;
+            printf("Word %s is longer than MAX_SIZE: %d\n", line, MAX_SIZE);
+            continue;
         }
+
+
+        *(*lines + (*count)) = line;
+        (*count)++;
         line = NULL;
     }
     fclose(fd);

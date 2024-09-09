@@ -57,16 +57,17 @@ Crossword checkWord(Crossword crossword, WordPosition word, char *wrd)
 
 int solveCrossword(Crossword crossword, Crossword *finalCrossWord, Words words, WordPositions wordPositions, int index)
 {
-    // if index is out of range of list of words break
-    if (index >= words.size)
-        return 0;
-
     // if the crossword does not have EMPTY symbols, the solution was found, return
     if (!isEmpty(crossword))
     {
         *finalCrossWord = copyCrossWord(crossword);
         return 1;
     }
+
+    // if index is out of range of list of words break
+    if (index >= words.size)
+        return 0;
+
     if (debug)
         printArray(crossword);
 
@@ -74,16 +75,14 @@ int solveCrossword(Crossword crossword, Crossword *finalCrossWord, Words words, 
     {
         if (strlen(words.words[index]) != wordPositions.positions[i].length)
             continue;
-
         Crossword temp = checkWord(crossword, wordPositions.positions[i], words.words[index]);
         // If the map is not failed, the word worked, moving on to the next one.
         if (temp.map[0][0] != FAILED_MAP)
             if (solveCrossword(temp, finalCrossWord, words, wordPositions, index + 1))
                 return 1;
     }
-
-    // reaching this means what word did not fit anywhere, returns unsuccess
-    return 0;
+    // reaching this means what word did not fit anywhere, goes to the next word
+    return solveCrossword(crossword, finalCrossWord, words, wordPositions, index + 1);
 }
 
 // Finds the word placement, for coordinates x y, with length and either vertical or horizontal
@@ -123,9 +122,9 @@ void processWord(Crossword *crossword, WordPositions *wordPositions, int x, int 
 // Finds all x y coordinates with length and orientation, where word could fit.
 void findAllPossibleWordPositions(Crossword *crossword, WordPositions *wordPositions)
 {
-    for (int i = 0; i < crossword->xSize - 1; i++)
+    for (int i = 0; i < crossword->xSize; i++)
     {
-        for (int j = 0; j < crossword->ySize - 1; j++)
+        for (int j = 0; j < crossword->ySize; j++)
         {
             if (crossword->map[i][j] == WALL)
                 continue;
